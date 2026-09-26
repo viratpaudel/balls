@@ -21,8 +21,10 @@ export default function GameCanvas() {
         const ball = createBall();
         launchBall(ball, Math.PI / 6, 500);
 
+        const trail: Array<{ x: number; y: number; alpha: number; radius: number }> = [];
+
         const render = () => {
-            ctx.fillStyle = "rgba(24, 24, 27, 0.35)";
+            ctx.fillStyle = "rgba(10, 10, 15, 0.42)";
             ctx.fillRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
 
             ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
@@ -42,19 +44,39 @@ export default function GameCanvas() {
                 ctx.stroke();
             }
 
+            trail.push({
+                x: ball.x,
+                y: ball.y,
+                alpha: 1,
+                radius: ball.radius,
+            });
+
+            if (trail.length > 18) {
+                trail.shift();
+            }
+
+            trail.forEach((point, index) => {
+                const alpha = (index + 1) / trail.length;
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, point.radius + 8, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.12})`;
+                ctx.fill();
+            });
+
             ctx.strokeStyle = "#f4f4f5";
             ctx.lineWidth = 8;
             ctx.strokeRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
 
+            const glowRadius = ball.radius + 14 + Math.sin(performance.now() / 140) * 2;
             ctx.beginPath();
-            ctx.arc(ball.x, ball.y, ball.radius + 12, 0, Math.PI * 2);
-            ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
+            ctx.arc(ball.x, ball.y, glowRadius, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
             ctx.fill();
 
             ctx.beginPath();
             ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
             ctx.fillStyle = "#ffffff";
-            ctx.shadowBlur = 22;
+            ctx.shadowBlur = 26;
             ctx.shadowColor = "#ffffff";
             ctx.fill();
             ctx.shadowBlur = 0;
@@ -67,7 +89,7 @@ export default function GameCanvas() {
                 0,
                 Math.PI * 2
             );
-            ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+            ctx.fillStyle = "rgba(255, 255, 255, 0.86)";
             ctx.fill();
         };
 
